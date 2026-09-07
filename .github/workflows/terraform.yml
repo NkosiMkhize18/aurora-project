@@ -65,7 +65,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        
+
       - name: Debug GitHub context
         run: |
           echo "event_name=${{ github.event_name }}"
@@ -101,4 +101,3 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-
