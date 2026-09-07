@@ -65,6 +65,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        
+      - name: Debug GitHub context
+        run: |
+          echo "event_name=${{ github.event_name }}"
+          echo "ref=${{ github.ref }}"
+          echo "base_ref=${{ github.base_ref }}"
+          echo "head_ref=${{ github.head_ref }}"
+          echo "repository=${{ github.repository }}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -93,3 +101,4 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
