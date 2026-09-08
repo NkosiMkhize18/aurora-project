@@ -171,6 +171,7 @@ data "aws_iam_policy_document" "github_plan_readonly" {
       "ec2:DescribeNatGateways",
       "ec2:DescribeSecurityGroups",
       "ec2:DescribeSecurityGroupRules",
+      "ec2:DescribeSecurityGroupRules",
       "ec2:DescribeVpcAttribute",
       "ec2:DescribeTags"
     ]
