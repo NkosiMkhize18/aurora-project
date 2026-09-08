@@ -15,3 +15,17 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "common_tags" {
+  description = "Tags applied to all supported AWS resources."
+  type        = map(string)
+
+  default = {
+    Project     = "aurora-project"
+    Environment = "dev"
+    ManagedBy   = "terraform"
+    Owner       = "platform-team"
+    CostCenter  = "personal"
+  }
+}
+
