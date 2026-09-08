@@ -140,7 +140,23 @@ data "aws_iam_policy_document" "terraform_state_plan" {
       "${aws_s3_bucket.terraform_state.arn}/aurora-project/terraform.tfstate"
     ]
   }
+
+  statement {
+    sid    = "ManageTerraformStateLock"
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.terraform_state.arn}/aurora-project/terraform.tfstate.tflock"
+    ]
+  }
 }
+
 
 data "aws_iam_policy_document" "terraform_state_apply" {
   statement {
