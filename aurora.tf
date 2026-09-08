@@ -61,8 +61,8 @@ resource "aws_rds_cluster" "aurora" {
 
   iam_database_authentication_enabled = true
 
-  deletion_protection = true
-  skip_final_snapshot = false
+  deletion_protection       = true
+  skip_final_snapshot       = false
   final_snapshot_identifier = "${var.project_name}-aurora-final-snapshot"
 
   enabled_cloudwatch_logs_exports = ["postgresql"]

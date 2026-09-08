@@ -58,11 +58,6 @@ output "ssm_bastion_instance_id" {
   value       = aws_instance.ssm_bastion.id
 }
 
-output "eks_aurora_iam_role_arn" {
-  description = "ARN of the IRSA role EKS pods annotate their service account with to get Aurora IAM auth."
-  value       = aws_iam_role.eks_aurora_access.arn
-}
-
 output "human_aurora_iam_policy_arn" {
   description = "ARN of the IAM policy to attach to human IAM users/roles for Aurora IAM auth."
   value       = aws_iam_policy.human_aurora_iam_auth.arn
