@@ -16,6 +16,24 @@ variable "environment" {
   default     = "dev"
 }
 
+variable "db_name" {
+  description = "Name of the Aurora PostgreSQL database."
+  type        = string
+  default     = "appdb"
+}
+
+variable "db_master_username" {
+  description = "Master username for Aurora PostgreSQL."
+  type        = string
+  default     = "dbadmin"
+}
+
+variable "db_master_password" {
+  description = "Master password for Aurora PostgreSQL. Supply via TF_VAR or Secrets Manager — never hardcode."
+  type        = string
+  sensitive   = true
+}
+
 variable "common_tags" {
   description = "Tags applied to all supported AWS resources."
   type        = map(string)

@@ -7,6 +7,11 @@ resource "aws_iam_openid_connect_provider" "github" {
     "sts.amazonaws.com"
   ]
 
+  thumbprint_list = [
+    "6938fd4d98bab03faadb97b34396831e3780aea1",
+    "1c58a3a8518e8759bf075b76b750d4f2df264fcd"
+  ]
+
   tags = {
     Name = "${var.project_name}-github-oidc"
   }
@@ -40,7 +45,7 @@ data "aws_iam_policy_document" "github_plan_assume_role" {
       variable = "token.actions.githubusercontent.com:sub"
 
       values = [
-        "repo:${var.github_repository}:pull_request"
+        "repo:NkosiMkhize18@19518913/aurora-project@1360545813:pull_request"
       ]
 
     }
@@ -75,7 +80,7 @@ data "aws_iam_policy_document" "github_apply_assume_role" {
       variable = "token.actions.githubusercontent.com:sub"
 
       values = [
-        "repo:${var.github_repository}:ref:refs/heads/main"
+        "repo:NkosiMkhize18@19518913/aurora-project@1360545813:ref:refs/heads/main"
       ]
     }
   }
@@ -171,6 +176,7 @@ data "aws_iam_policy_document" "github_plan_readonly" {
       "ec2:DescribeNatGateways",
       "ec2:DescribeSecurityGroups",
       "ec2:DescribeSecurityGroupRules",
+      "ec2:DescribeSecurityGroupRules",
       "ec2:DescribeVpcAttribute",
       "ec2:DescribeTags"
     ]
@@ -186,7 +192,74 @@ data "aws_iam_policy_document" "github_plan_readonly" {
       "rds:DescribeDBSubnetGroups",
       "rds:DescribeDBClusters",
       "rds:DescribeDBInstances",
+      "rds:DescribeDBClusterParameterGroups",
+      "rds:DescribeDBParameters",
+      "rds:DescribeDBClusterParameters",
       "rds:ListTagsForResource"
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "ReadKMS"
+    effect = "Allow"
+
+    actions = [
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:GetKeyRotationStatus",
+      "kms:ListAliases",
+      "kms:ListResourceTags"
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "ReadSecretsManager"
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:GetResourcePolicy",
+      "secretsmanager:ListSecretVersionIds"
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "ReadIAM"
+    effect = "Allow"
+
+    actions = [
+      "iam:GetRole",
+      "iam:GetRolePolicy",
+      "iam:GetInstanceProfile",
+      "iam:GetPolicy",
+      "iam:GetPolicyVersion",
+      "iam:ListRolePolicies",
+      "iam:ListAttachedRolePolicies",
+      "iam:ListInstanceProfilesForRole",
+      "iam:ListPolicyVersions"
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "ReadSSMAndEndpoints"
+    effect = "Allow"
+
+    actions = [
+      "ec2:DescribeVpcEndpoints",
+      "ec2:DescribeInstances",
+      "ec2:DescribeInstanceAttribute",
+      "ec2:DescribeInstanceTypes",
+      "ec2:DescribeImages",
+      "ec2:DescribeVolumes",
+      "ssm:DescribeInstanceInformation"
     ]
 
     resources = ["*"]
@@ -302,6 +375,170 @@ resource "aws_iam_role_policy" "github_apply_rds" {
   role = aws_iam_role.github_apply.id
 
   policy = data.aws_iam_policy_document.github_apply_rds.json
+}
+
+data "aws_iam_policy_document" "github_apply_kms" {
+  statement {
+    sid    = "ManageKMS"
+    effect = "Allow"
+
+    actions = [
+      "kms:CreateKey",
+      "kms:ScheduleKeyDeletion",
+      "kms:CancelKeyDeletion",
+      "kms:EnableKeyRotation",
+      "kms:DisableKeyRotation",
+      "kms:PutKeyPolicy",
+      "kms:TagResource",
+      "kms:UntagResource",
+      "kms:CreateAlias",
+      "kms:DeleteAlias",
+      "kms:UpdateAlias",
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:GetKeyRotationStatus",
+      "kms:ListAliases",
+      "kms:ListResourceTags"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_apply_kms" {
+  name = "${var.project_name}-github-apply-kms"
+
+  role = aws_iam_role.github_apply.id
+
+  policy = data.aws_iam_policy_document.github_apply_kms.json
+}
+
+data "aws_iam_policy_document" "github_apply_secrets" {
+  statement {
+    sid    = "ManageSecretsManager"
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:CreateSecret",
+      "secretsmanager:DeleteSecret",
+      "secretsmanager:UpdateSecret",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:TagResource",
+      "secretsmanager:UntagResource",
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:GetResourcePolicy",
+      "secretsmanager:ListSecretVersionIds"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_apply_secrets" {
+  name = "${var.project_name}-github-apply-secrets"
+
+  role = aws_iam_role.github_apply.id
+
+  policy = data.aws_iam_policy_document.github_apply_secrets.json
+}
+
+data "aws_iam_policy_document" "github_apply_iam" {
+  statement {
+    sid    = "ManageIAMRoles"
+    effect = "Allow"
+
+    actions = [
+      "iam:CreatePolicy",
+      "iam:DeletePolicy",
+      "iam:GetPolicy",
+      "iam:GetPolicyVersion",
+      "iam:ListPolicyVersions",
+      "iam:CreatePolicyVersion",
+      "iam:DeletePolicyVersion",
+      "iam:TagPolicy",
+      "iam:UntagPolicy",
+      "iam:CreateRole",
+      "iam:DeleteRole",
+      "iam:UpdateRole",
+      "iam:PutRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:AttachRolePolicy",
+      "iam:DetachRolePolicy",
+      "iam:CreateInstanceProfile",
+      "iam:DeleteInstanceProfile",
+      "iam:AddRoleToInstanceProfile",
+      "iam:RemoveRoleFromInstanceProfile",
+      "iam:PassRole",
+      "iam:TagRole",
+      "iam:UntagRole",
+      "iam:GetRole",
+      "iam:GetRolePolicy",
+      "iam:GetInstanceProfile",
+      "iam:ListRolePolicies",
+      "iam:ListAttachedRolePolicies",
+      "iam:ListInstanceProfilesForRole"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_apply_iam" {
+  name = "${var.project_name}-github-apply-iam"
+
+  role = aws_iam_role.github_apply.id
+
+  policy = data.aws_iam_policy_document.github_apply_iam.json
+}
+
+data "aws_iam_policy_document" "github_apply_ec2_instances" {
+  statement {
+    sid    = "ManageEC2Instances"
+    effect = "Allow"
+
+    actions = [
+      "ec2:RunInstances",
+      "ec2:TerminateInstances",
+      "ec2:StopInstances",
+      "ec2:StartInstances",
+      "ec2:ModifyInstanceAttribute",
+      "ec2:DescribeInstances",
+      "ec2:DescribeInstanceAttribute",
+      "ec2:DescribeInstanceTypes",
+      "ec2:DescribeImages",
+      "ec2:DescribeVolumes",
+      "ec2:CreateVolume",
+      "ec2:DeleteVolume",
+      "ec2:AttachVolume",
+      "ec2:DetachVolume",
+      "ec2:ModifyVolume"
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "ManageVPCEndpoints"
+    effect = "Allow"
+
+    actions = [
+      "ec2:CreateVpcEndpoint",
+      "ec2:DeleteVpcEndpoints",
+      "ec2:ModifyVpcEndpoint",
+      "ec2:DescribeVpcEndpoints",
+      "ec2:DescribeVpcEndpointServices"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_apply_ec2_instances" {
+  name = "${var.project_name}-github-apply-ec2-instances"
+
+  role = aws_iam_role.github_apply.id
+
+  policy = data.aws_iam_policy_document.github_apply_ec2_instances.json
 }
 
 data "aws_iam_policy_document" "terraform_state_apply" {
