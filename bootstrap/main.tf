@@ -259,6 +259,8 @@ data "aws_iam_policy_document" "github_plan_readonly" {
       "ec2:DescribeInstanceTypes",
       "ec2:DescribeImages",
       "ec2:DescribeVolumes",
+      "ec2:DescribePrefixLists",
+      "ec2:DescribeNetworkInterfaces",
       "ssm:DescribeInstanceInformation"
     ]
 
@@ -362,7 +364,11 @@ data "aws_iam_policy_document" "github_apply_rds" {
       "rds:ModifyDBCluster",
       "rds:CreateDBInstance",
       "rds:DeleteDBInstance",
-      "rds:ModifyDBInstance"
+      "rds:ModifyDBInstance",
+      "rds:CreateDBClusterParameterGroup",
+      "rds:DeleteDBClusterParameterGroup",
+      "rds:ModifyDBClusterParameterGroup",
+      "rds:ResetDBClusterParameterGroup"
     ]
 
     resources = ["*"]
@@ -468,6 +474,8 @@ data "aws_iam_policy_document" "github_apply_iam" {
       "iam:DeleteInstanceProfile",
       "iam:AddRoleToInstanceProfile",
       "iam:RemoveRoleFromInstanceProfile",
+      "iam:TagInstanceProfile",
+      "iam:UntagInstanceProfile",
       "iam:PassRole",
       "iam:TagRole",
       "iam:UntagRole",
@@ -526,7 +534,8 @@ data "aws_iam_policy_document" "github_apply_ec2_instances" {
       "ec2:DeleteVpcEndpoints",
       "ec2:ModifyVpcEndpoint",
       "ec2:DescribeVpcEndpoints",
-      "ec2:DescribeVpcEndpointServices"
+      "ec2:DescribeVpcEndpointServices",
+      "ec2:DescribePrefixLists"
     ]
 
     resources = ["*"]
