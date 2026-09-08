@@ -35,6 +35,7 @@ jobs:
           role-to-assume: arn:aws:iam::080185743867:role/aurora-project-github-plan
           aws-region: us-east-1
           role-session-name: github-actions-plan
+          audience: sts.amazonaws.com
 
       - name: Verify AWS identity
         run: aws sts get-caller-identity
@@ -102,6 +103,7 @@ jobs:
           role-to-assume: arn:aws:iam::080185743867:role/aurora-project-github-apply
           aws-region: us-east-1
           role-session-name: github-actions-apply
+          audience: sts.amazonaws.com
 
       - name: Verify AWS identity
         run: aws sts get-caller-identity
