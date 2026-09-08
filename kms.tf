@@ -1,6 +1,8 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_kms_key" "aurora" {
+  count = var.enable_aurora ? 1 : 0
+
   description             = "KMS key for Aurora PostgreSQL encryption"
   deletion_window_in_days = 7
   enable_key_rotation     = true
@@ -13,8 +15,10 @@ resource "aws_kms_key" "aurora" {
 }
 
 resource "aws_kms_alias" "aurora" {
+  count = var.enable_aurora ? 1 : 0
+
   name          = "alias/${var.project_name}-aurora"
-  target_key_id = aws_kms_key.aurora.key_id
+  target_key_id = aws_kms_key.aurora[0].key_id
 }
 
 data "aws_iam_policy_document" "kms_aurora" {

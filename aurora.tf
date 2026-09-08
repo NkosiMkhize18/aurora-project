@@ -1,6 +1,7 @@
 resource "aws_db_subnet_group" "aurora" {
-  name = "${var.project_name}-aurora"
+  count = var.enable_aurora ? 1 : 0
 
+  name       = "${var.project_name}-aurora"
   subnet_ids = aws_subnet.private[*].id
 
   tags = {
@@ -9,6 +10,8 @@ resource "aws_db_subnet_group" "aurora" {
 }
 
 resource "aws_rds_cluster_parameter_group" "aurora" {
+  count = var.enable_aurora ? 1 : 0
+
   name   = "${var.project_name}-aurora-pg"
   family = "aurora-postgresql16"
 
@@ -38,6 +41,8 @@ resource "aws_rds_cluster_parameter_group" "aurora" {
 }
 
 resource "aws_rds_cluster" "aurora" {
+  count = var.enable_aurora ? 1 : 0
+
   cluster_identifier = "${var.project_name}-aurora"
 
   engine         = "aurora-postgresql"
@@ -47,16 +52,15 @@ resource "aws_rds_cluster" "aurora" {
   master_username = var.db_master_username
   master_password = var.db_master_password
 
-  db_subnet_group_name            = aws_db_subnet_group.aurora.name
+  db_subnet_group_name            = aws_db_subnet_group.aurora[0].name
   vpc_security_group_ids          = [aws_security_group.aurora.id]
-  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora.name
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora[0].name
 
   storage_encrypted = true
-  kms_key_id        = aws_kms_key.aurora.arn
+  kms_key_id        = aws_kms_key.aurora[0].arn
 
-  backup_retention_period = 7
-  preferred_backup_window = "02:00-03:00"
-
+  backup_retention_period      = 7
+  preferred_backup_window      = "02:00-03:00"
   preferred_maintenance_window = "sun:04:00-sun:05:00"
 
   iam_database_authentication_enabled = true
@@ -73,23 +77,24 @@ resource "aws_rds_cluster" "aurora" {
 }
 
 resource "aws_rds_cluster_instance" "aurora_writer" {
-  identifier         = "${var.project_name}-aurora-writer"
-  cluster_identifier = aws_rds_cluster.aurora.id
+  count = var.enable_aurora ? 1 : 0
 
-  engine         = aws_rds_cluster.aurora.engine
-  engine_version = aws_rds_cluster.aurora.engine_version
+  identifier         = "${var.project_name}-aurora-writer"
+  cluster_identifier = aws_rds_cluster.aurora[0].id
+
+  engine         = aws_rds_cluster.aurora[0].engine
+  engine_version = aws_rds_cluster.aurora[0].engine_version
 
   instance_class = "db.t3.medium"
 
-  db_subnet_group_name = aws_db_subnet_group.aurora.name
+  db_subnet_group_name = aws_db_subnet_group.aurora[0].name
 
   publicly_accessible = false
 
-  monitoring_interval = 60
-  monitoring_role_arn = aws_iam_role.rds_enhanced_monitoring.arn
-
-  performance_insights_enabled          = true
-  performance_insights_kms_key_id       = aws_kms_key.aurora.arn
+  monitoring_interval             = 60
+  monitoring_role_arn             = aws_iam_role.rds_enhanced_monitoring[0].arn
+  performance_insights_enabled    = true
+  performance_insights_kms_key_id = aws_kms_key.aurora[0].arn
   performance_insights_retention_period = 7
 
   auto_minor_version_upgrade = true
@@ -100,8 +105,9 @@ resource "aws_rds_cluster_instance" "aurora_writer" {
 }
 
 resource "aws_iam_role" "rds_enhanced_monitoring" {
-  name = "${var.project_name}-rds-monitoring"
+  count = var.enable_aurora ? 1 : 0
 
+  name               = "${var.project_name}-rds-monitoring"
   assume_role_policy = data.aws_iam_policy_document.rds_monitoring_assume.json
 
   tags = {
@@ -122,6 +128,8 @@ data "aws_iam_policy_document" "rds_monitoring_assume" {
 }
 
 resource "aws_iam_role_policy_attachment" "rds_enhanced_monitoring" {
-  role       = aws_iam_role.rds_enhanced_monitoring.name
+  count = var.enable_aurora ? 1 : 0
+
+  role       = aws_iam_role.rds_enhanced_monitoring[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }

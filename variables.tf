@@ -1,3 +1,15 @@
+variable "enable_aurora" {
+  description = "Set to true to deploy Aurora PostgreSQL cluster (not free tier)."
+  type        = bool
+  default     = false
+}
+
+variable "enable_rds_free_tier" {
+  description = "Set to true to deploy a free tier RDS PostgreSQL instance for training."
+  type        = bool
+  default     = true
+}
+
 variable "aws_region" {
   description = "AWS region where the Aurora environment will be deployed."
   type        = string
