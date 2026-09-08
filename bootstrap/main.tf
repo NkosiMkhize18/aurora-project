@@ -170,8 +170,23 @@ data "aws_iam_policy_document" "github_plan_readonly" {
       "ec2:DescribeInternetGateways",
       "ec2:DescribeNatGateways",
       "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSecurityGroupRules",
       "ec2:DescribeVpcAttribute",
       "ec2:DescribeTags"
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "ReadRDS"
+    effect = "Allow"
+
+    actions = [
+      "rds:DescribeDBSubnetGroups",
+      "rds:DescribeDBClusters",
+      "rds:DescribeDBInstances",
+      "rds:ListTagsForResource"
     ]
 
     resources = ["*"]
@@ -228,6 +243,65 @@ resource "aws_iam_role_policy" "github_apply_vpc" {
   role = aws_iam_role.github_apply.id
 
   policy = data.aws_iam_policy_document.github_apply_vpc.json
+}
+
+data "aws_iam_policy_document" "github_apply_security_groups" {
+  statement {
+    sid    = "ManageSecurityGroups"
+    effect = "Allow"
+
+    actions = [
+      "ec2:CreateSecurityGroup",
+      "ec2:DeleteSecurityGroup",
+      "ec2:AuthorizeSecurityGroupIngress",
+      "ec2:AuthorizeSecurityGroupEgress",
+      "ec2:RevokeSecurityGroupIngress",
+      "ec2:RevokeSecurityGroupEgress",
+      "ec2:UpdateSecurityGroupRuleDescriptionsIngress",
+      "ec2:UpdateSecurityGroupRuleDescriptionsEgress"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_apply_security_groups" {
+  name = "${var.project_name}-github-apply-security-groups"
+
+  role = aws_iam_role.github_apply.id
+
+  policy = data.aws_iam_policy_document.github_apply_security_groups.json
+}
+
+data "aws_iam_policy_document" "github_apply_rds" {
+  statement {
+    sid    = "ManageRDS"
+    effect = "Allow"
+
+    actions = [
+      "rds:CreateDBSubnetGroup",
+      "rds:DeleteDBSubnetGroup",
+      "rds:ModifyDBSubnetGroup",
+      "rds:AddTagsToResource",
+      "rds:RemoveTagsFromResource",
+      "rds:CreateDBCluster",
+      "rds:DeleteDBCluster",
+      "rds:ModifyDBCluster",
+      "rds:CreateDBInstance",
+      "rds:DeleteDBInstance",
+      "rds:ModifyDBInstance"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_apply_rds" {
+  name = "${var.project_name}-github-apply-rds"
+
+  role = aws_iam_role.github_apply.id
+
+  policy = data.aws_iam_policy_document.github_apply_rds.json
 }
 
 data "aws_iam_policy_document" "terraform_state_apply" {
