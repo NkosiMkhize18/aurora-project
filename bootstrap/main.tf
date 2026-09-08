@@ -157,6 +157,34 @@ data "aws_iam_policy_document" "terraform_state_plan" {
   }
 }
 
+data "aws_iam_policy_document" "github_plan_readonly" {
+  statement {
+    sid    = "ReadEC2"
+    effect = "Allow"
+
+    actions = [
+      "ec2:DescribeAvailabilityZones",
+      "ec2:DescribeVpcs",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeRouteTables",
+      "ec2:DescribeInternetGateways",
+      "ec2:DescribeNatGateways",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeVpcAttribute",
+      "ec2:DescribeTags"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_plan_readonly" {
+  name = "${var.project_name}-github-plan-readonly"
+
+  role = aws_iam_role.github_plan.id
+
+  policy = data.aws_iam_policy_document.github_plan_readonly.json
+}
 
 data "aws_iam_policy_document" "terraform_state_apply" {
   statement {
