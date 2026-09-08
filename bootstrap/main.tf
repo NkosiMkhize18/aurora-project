@@ -194,6 +194,33 @@ resource "aws_iam_role_policy" "github_apply_readonly" {
   policy = data.aws_iam_policy_document.github_plan_readonly.json
 }
 
+data "aws_iam_policy_document" "github_apply_terraform" {
+  statement {
+    sid    = "EC2Networking"
+    effect = "Allow"
+
+    actions = [
+      "ec2:CreateInternetGateway",
+      "ec2:AttachInternetGateway",
+      "ec2:CreateSubnet",
+      "ec2:CreateRouteTable",
+      "ec2:CreateRoute",
+      "ec2:AssociateRouteTable"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_apply_terraform" {
+  name = "${var.project_name}-github-apply-terraform"
+
+  role = aws_iam_role.github_apply.id
+
+  policy = data.aws_iam_policy_document.github_apply_terraform.json
+}
+
+
 data "aws_iam_policy_document" "terraform_state_apply" {
   statement {
     sid    = "ListTerraformState"
