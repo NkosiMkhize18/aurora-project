@@ -186,6 +186,14 @@ resource "aws_iam_role_policy" "github_plan_readonly" {
   policy = data.aws_iam_policy_document.github_plan_readonly.json
 }
 
+resource "aws_iam_role_policy" "github_apply_readonly" {
+  name = "${var.project_name}-github-apply-readonly"
+
+  role = aws_iam_role.github_apply.id
+
+  policy = data.aws_iam_policy_document.github_plan_readonly.json
+}
+
 data "aws_iam_policy_document" "terraform_state_apply" {
   statement {
     sid    = "ListTerraformState"
