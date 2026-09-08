@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "github_plan_assume_role" {
       variable = "token.actions.githubusercontent.com:sub"
 
       values = [
-        "repo:NkosiMkhize18@19518913/aurora-project@1360545813:pull_request"
+        "repo:${var.github_repository}:pull_request"
       ]
 
     }
@@ -75,7 +75,7 @@ data "aws_iam_policy_document" "github_apply_assume_role" {
       variable = "token.actions.githubusercontent.com:sub"
 
       values = [
-        "repo:NkosiMkhize18@19518913/aurora-project@1360545813:ref:refs/heads/main"
+        "repo:${var.github_repository}:ref:refs/heads/main"
       ]
     }
   }
@@ -200,6 +200,9 @@ data "aws_iam_policy_document" "github_apply_vpc" {
     effect = "Allow"
 
     actions = [
+      "ec2:CreateVpc",
+      "ec2:DeleteVpc",
+      "ec2:ModifyVpcAttribute",
       "ec2:CreateInternetGateway",
       "ec2:CreateSubnet",
       "ec2:CreateRouteTable",
