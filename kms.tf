@@ -55,4 +55,25 @@ data "aws_iam_policy_document" "kms_aurora" {
 
     resources = ["*"]
   }
+
+  statement {
+    sid    = "SecretsManagerAccess"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["secretsmanager.amazonaws.com"]
+    }
+
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+      "kms:CreateGrant"
+    ]
+
+    resources = ["*"]
+  }
 }
