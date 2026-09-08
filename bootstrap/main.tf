@@ -194,32 +194,38 @@ resource "aws_iam_role_policy" "github_apply_readonly" {
   policy = data.aws_iam_policy_document.github_plan_readonly.json
 }
 
-data "aws_iam_policy_document" "github_apply_terraform" {
+data "aws_iam_policy_document" "github_apply_vpc" {
   statement {
-    sid    = "EC2Networking"
+    sid    = "ManageVPC"
     effect = "Allow"
 
     actions = [
       "ec2:CreateInternetGateway",
-      "ec2:AttachInternetGateway",
       "ec2:CreateSubnet",
       "ec2:CreateRouteTable",
       "ec2:CreateRoute",
-      "ec2:AssociateRouteTable"
+      "ec2:CreateTags",
+      "ec2:AttachInternetGateway",
+      "ec2:AssociateRouteTable",
+      "ec2:ModifySubnetAttribute",
+      "ec2:DeleteRoute",
+      "ec2:DetachInternetGateway",
+      "ec2:DeleteInternetGateway",
+      "ec2:DeleteSubnet",
+      "ec2:DeleteRouteTable"
     ]
 
     resources = ["*"]
   }
 }
 
-resource "aws_iam_role_policy" "github_apply_terraform" {
-  name = "${var.project_name}-github-apply-terraform"
+resource "aws_iam_role_policy" "github_apply_vpc" {
+  name = "${var.project_name}-github-apply-vpc"
 
   role = aws_iam_role.github_apply.id
 
-  policy = data.aws_iam_policy_document.github_apply_terraform.json
+  policy = data.aws_iam_policy_document.github_apply_vpc.json
 }
-
 
 data "aws_iam_policy_document" "terraform_state_apply" {
   statement {
